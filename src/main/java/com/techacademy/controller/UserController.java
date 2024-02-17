@@ -58,21 +58,40 @@ public class UserController {
 
     /** User更新画面を表示 */
     @GetMapping("/update/{id}/")
-    public String getUser(@PathVariable("id") Integer id, Model model) {
-        // Modelに登録
-        model.addAttribute("user", service.getUser(id));
+    public String getUser(@PathVariable("id") Integer id, @ModelAttribute User user, Model model) {
+        if (id != null) {
+            // サービスからUserを取得し、Modelにセット
+            model.addAttribute("user", service.getUser(id));
+        } else {
+            // postUser()から渡された引数のuserをModelにセット
+            model.addAttribute("user", user);
+        }
         // User更新画面に遷移
         return "user/update";
     }
 
+
+ // ----- 変更ここから2 -----
     /** User更新処理 */
     @PostMapping("/update/{id}/")
-    public String postUser(User user) {
-        // User登録
+    public String updateUser(@PathVariable("id") Integer id, @Validated User user, BindingResult res, Model model) {
+        if(res.hasErrors()) {
+            // エラーあり
+            return "user/update";
+        }
+        // User更新
         service.saveUser(user);
         // 一覧画面にリダイレクト
         return "redirect:/user/list";
+
     }
+    @SuppressWarnings("unused")
+    private String getUser(User user) {
+    // TODO 自動生成されたメソッド・スタブ
+    return null;
+}
+
+    // ----- 変更ここまで2 -----
 
     /** User削除処理 */
     @PostMapping(path="list", params="deleteRun")
